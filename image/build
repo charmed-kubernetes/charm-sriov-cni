@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -eux
+
+rm -rf build.tmp
+mkdir build.tmp
+(cd build.tmp
+  git clone https://github.com/intel/sriov-cni --branch v2.3 --depth 1
+  cd sriov-cni
+  make
+)
+DOCKER_BUILDKIT=1 docker build . -t sriov-cni
+rm -rf build.tmp
