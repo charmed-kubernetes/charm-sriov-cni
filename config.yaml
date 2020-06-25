@@ -1,0 +1,6 @@
+options:
+  cni-bin-dir:
+    type: string
+    default: '/opt/cni/bin'
+    description: |
+      Path to install SR-IOV CNI plugin to.
