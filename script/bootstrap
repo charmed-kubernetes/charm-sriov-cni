@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -x
+
+sudo apt update
+sudo apt install -qyf docker.io make unzip python3-pip
+pip3 install --user charmcraft
+sudo snap install go --classic
+sudo snap install charm --classic
+sudo snap install yq

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -x
+
+export PATH=/snap/bin:$PATH
+
+cd image/
+./build
+cd ..
+$HOME/.local/bin/charmcraft build
