@@ -5,24 +5,19 @@ This is an early proof-of-concept charm for deploying and managing Intel's
 
 ## Development
 
-### Building the image
-
-Make sure you have docker installed. Then:
-
-```
-cd image
-./build
-```
-
 ### Building the charm
 
-Install [Charmcraft](https://pypi.org/project/charmcraft/).
-
-Build the charm:
+Running this make target will install all the necessary dependencies to build
+the docker image and charm.
 
 ```
-charmcraft build
+make charm
 ```
+
+The scripts used in the Makefile are located in the
+[script](https://github.com/charmed-kubernetes/charm-sriov-cni/tree/master/script/)
+directory.
+
 
 ### Uploading to the charm store
 
@@ -32,12 +27,7 @@ to do this is to upload the charm to the charm store and attach the image as a
 charm resource.
 
 ```
-mkdir temp
-cd temp
-unzip ../sriov-cni.charm
-charm push . cs:~${NAMESPACE}/sriov-cni
-charm attach cs:~${NAMESPACE}/sriov-cni --channel unpublished sriov-cni-image=sriov-cni
-charm release cs:~${NAMESPACE}/sriov-cni-0 --channel edge --resource sriov-cni-image-0
+make NAMESPACE=<NAMESPACE> CHANNEL=<CHANNEL> upload
 ```
 
 ### Testing
