@@ -1,10 +1,37 @@
 #!/bin/bash
 
-set -x
+set -e
 
-sudo apt update
-sudo apt install -qyf docker.io make unzip python3-pip
-pip3 install --user charmcraft
-sudo snap install go --classic
-sudo snap install charm --classic
-sudo snap install yq
+export PATH="/snap/bin:$PATH"
+
+if [[ "$(snap whoami)" == "email: -" ]]; then
+    snap="sudo snap"
+else
+    snap="snap"
+fi
+
+echo "Verifying dependencies..."
+if ! (which make && which unzip) > /dev/null; then
+    echo "Updating apt..."
+    sudo apt update -yqq
+fi
+if ! which make > /dev/null; then
+    echo "Installing make..."
+    sudo apt install -qyf make
+fi
+if ! which unzip > /dev/null; then
+    echo "Installing unzip..."
+    sudo apt install -qyf unzip
+fi
+if ! which docker > /dev/null; then
+    echo "Installing docker..."
+    $snap install docker
+fi
+if ! which charmcraft > /dev/null; then
+    echo "Installing charmcraft snap..."
+    $snap install charmcraft --beta
+fi
+if ! which yq > /dev/null; then
+    echo "Installing yq..."
+    $snap install yq
+fi

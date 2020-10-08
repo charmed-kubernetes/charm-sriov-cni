@@ -1,10 +1,15 @@
 #!/bin/bash
-
-set -x
+set -eu
 
 export PATH=/snap/bin:$PATH
 
-cd image/
-./build
-cd ..
-$HOME/.local/bin/charmcraft build
+mkdir -p "$CHARM_BUILD_DIR"
+
+CHARM_SRC="$(realpath .)"
+
+echo "Building image..."
+(cd image/; ./build)
+
+echo "Building $CHARM..."
+(cd "$CHARM_BUILD_DIR" && charmcraft build -f "$CHARM_SRC" 2>&1) | sed -e "s,in ',in '$CHARM_BUILD_DIR/,"
+exit "${PIPESTATUS[0]}"
