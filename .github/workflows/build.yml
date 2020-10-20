@@ -23,4 +23,7 @@ jobs:
           python-version: '3.8'
       - name: Run build
         run: |
-          make charm
+          sudo snap install charmcraft --beta
+          charmcraft build
+          cd image
+          ./build
