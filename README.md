@@ -7,27 +7,20 @@ This is an early proof-of-concept charm for deploying and managing Intel's
 
 ### Building the charm
 
-Running this make target will install all the necessary dependencies to build
-the docker image and charm.
+This charm can be built locally using [charmcraft][]
 
 ```
-make charm
+charmcraft build
 ```
 
-The scripts used in the Makefile are located in the
-[script](https://github.com/charmed-kubernetes/charm-sriov-cni/tree/master/script/)
-directory.
+### Building the resources
 
-
-### Uploading to the charm store
-
-In order to test the sriov-cni charm, you must first host the container image
-somewhere it will be accessible from your Kubernetes cluster. The easiest way
-to do this is to upload the charm to the charm store and attach the image as a
-charm resource.
+In order to test the sriov-cni charm, you must first build the container image
+(note: this requires Docker):
 
 ```
-make NAMESPACE=<NAMESPACE> CHANNEL=<CHANNEL> upload
+cd image
+./build
 ```
 
 ### Testing
@@ -50,5 +43,5 @@ juju add-model my-k8s-model my-k8s-cloud
 Deploy the SR-IOV Network Device Plugin:
 
 ```
-juju deploy cs:~${NAMESPACE}/sriov-cni --channel edge
+juju deploy ./sriov-cni.charm --resource sriov-cni-image=sriov-cni
 ```
