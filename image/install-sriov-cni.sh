@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-echo "Copying CNI plugins"
+echo "Copying CNI plugins to host"
 cp -rv /opt/cni/bin/* /dest
 
 echo "Sleeping forever"
