@@ -46,4 +46,10 @@ Deploy the SR-IOV Network Device Plugin:
 juju deploy ./sriov-cni.charm --resource sriov-cni-image=sriov-cni
 ```
 
+## Contributing
+
+If you wish to suggest changes to the code, docs or contribute to this charm, please
+see the [CONTRIBUTING.md][] page.
+
+[contributing.md]: ./CONTRIBUTING.md
 [charmcraft]: https://github.com/canonical/charmcraft/
