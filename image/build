@@ -4,11 +4,17 @@ set -eu
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
 (
- cp Dockerfile install-sriov-cni.sh "$tmpdir"
- cd "$tmpdir"
- git clone https://github.com/intel/sriov-cni --branch v2.3 --depth 1
- cd sriov-cni
- make
- cd ..
- DOCKER_BUILDKIT=1 docker build . -t sriov-cni
+  cp Dockerfile install-sriov-cni.sh "$tmpdir"
+  cd "$tmpdir"
+  git clone https://github.com/intel/sriov-cni --branch v2.3 --depth 1
+  GROUP_ID=$(id -g)
+  USER_ID=$(id -u)
+  docker run \
+    --rm \
+    -e GOOS=linux \
+    -e GOARCH=amd64 \
+    -v "$tmpdir/sriov-cni:/sriov-cni" \
+    golang:1.15 \
+    /bin/bash -c "cd /sriov-cni && make && chown -R ${USER_ID}:${GROUP_ID} /sriov-cni"
+  DOCKER_BUILDKIT=1 docker build . -t sriov-cni
 )
