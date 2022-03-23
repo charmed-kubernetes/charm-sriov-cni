@@ -23,7 +23,7 @@ jobs:
           python-version: '3.8'
       - name: Run build
         run: |
-          sudo snap install charmcraft --beta
+          sudo snap install charmcraft --classic
           charmcraft build
           cd image
           ./build
