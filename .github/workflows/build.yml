@@ -24,6 +24,6 @@ jobs:
       - name: Run build
         run: |
           sudo snap install charmcraft --classic
-          charmcraft build
+          charmcraft pack --destructive-mode
           cd image
           ./build
