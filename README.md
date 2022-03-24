@@ -10,7 +10,7 @@ This is an early proof-of-concept charm for deploying and managing Intel's
 This charm can be built locally using [charmcraft][]
 
 ```
-charmcraft build
+charmcraft pack
 ```
 
 ### Building the resources
