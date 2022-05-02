@@ -1,5 +1,6 @@
 name: sriov-cni
 summary: SR-IOV CNI
+docs: https://discourse.charmhub.io/t/sriov-cni-index-docs/6321
 maintainers:
   - George Kraft <george.kraft@canonical.com>
 description: |
