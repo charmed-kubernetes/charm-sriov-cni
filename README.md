@@ -1,7 +1,15 @@
 # SR-IOV CNI Charm
 
-This is an early proof-of-concept charm for deploying and managing Intel's
-[SR-IOV CNI plugin](https://github.com/intel/sriov-cni) via Juju.
+[SR-IOV CNI plugin][sriov-cni] enables the configuration and usage of
+SR-IOV VFs in Kubernetes.
+
+This charm, when deployed to a Kubernetes cloud, will create a DaemonSet that
+installs the SR-IOV CNI plugin on every Kubernetes node in the cluster.
+
+This charm is a component of Charmed Kubernetes. For full information,
+please visit the [official Charmed Kubernetes docs](https://ubuntu.com/kubernetes/docs/cni-sriov).
+
+[sriov-cni]: https://github.com/k8snetworkplumbingwg/sriov-cni
 
 ## Development
 
