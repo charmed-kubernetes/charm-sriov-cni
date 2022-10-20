@@ -1,4 +1,9 @@
 type: charm
+parts:
+  charm:
+    build-packages: [git]
+    prime:
+      - upstream/**
 bases:
   - build-on:
     - name: "ubuntu"

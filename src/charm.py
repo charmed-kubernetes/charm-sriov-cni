@@ -1,59 +1,62 @@
 #!/usr/bin/env python3
+# Copyright 2022 Canonical Ltd.
+# See LICENSE file for licensing details.
+#
+# Learn more at: https://juju.is/docs/sdk
 
 import logging
-from oci_image import OCIImageResource, OCIImageResourceError
+
 from ops.charm import CharmBase
+from ops.framework import StoredState
 from ops.main import main
-from ops.model import ActiveStatus, MaintenanceStatus
+from ops.manifests import Collector
+from ops.model import ActiveStatus, WaitingStatus
 
+from manifests import SRIOVCNIManifests
 
-log = logging.getLogger()
+log = logging.getLogger(__name__)
 
 
 class SRIOVCNICharm(CharmBase):
+    """A Juju charm for SR-IOV CNI"""
+
+    stored = StoredState()
+
     def __init__(self, *args):
         super().__init__(*args)
-        self.image = OCIImageResource(self, 'sriov-cni-image')
-        self.framework.observe(self.on.install, self.set_pod_spec)
-        self.framework.observe(self.on.upgrade_charm, self.set_pod_spec)
-        self.framework.observe(self.on.config_changed, self.set_pod_spec)
+        self.manifests = SRIOVCNIManifests(self, self.config)
+        self.collector = Collector(self.manifests)
+        self.framework.observe(self.on.install, self._install_or_upgrade)
+        self.framework.observe(self.on.upgrade_charm, self._install_or_upgrade)
+        self.framework.observe(self.on.config_changed, self._on_config_changed)
+        self.stored.set_default(deployed=False)
 
-    def set_pod_spec(self, event):
-        if not self.model.unit.is_leader():
-            log.info('Not a leader, skipping set_pod_spec')
-            self.model.unit.status = ActiveStatus()
+    def _install_or_upgrade(self, event):
+        if not self.unit.is_leader():
+            self.unit.status = ActiveStatus("Ready")
+            return
+        log.info("Applying SRIOV-CNI manifests.")
+        self.manifests.apply_manifests()
+        self.stored.deployed = True
+        self._update_status(event)
+
+    def _on_config_changed(self, event):
+        self.manifests.apply_manifests()
+        self._update_status(event)
+
+    def _update_status(self, _):
+        if not self.stored.deployed:
             return
 
-        try:
-            image_details = self.image.fetch()
-        except OCIImageResourceError as e:
-            self.model.unit.status = e.status
-            return
+        unready = self.collector.unready
 
-        cni_bin_dir = self.model.config.get('cni-bin-dir', '/opt/cni/bin')
-
-        self.model.unit.status = MaintenanceStatus('Setting pod spec')
-        self.model.pod.set_spec({
-            'version': 3,
-            'containers': [{
-                'name': 'sriov-cni',
-                'imageDetails': image_details,
-                'volumeConfig': [{
-                    'name': 'cni-bin',
-                    'mountPath': '/dest',
-                    'hostPath': {
-                        'path': cni_bin_dir
-                    }
-                }]
-            }],
-            'kubernetesResources': {
-                'pod': {
-                    'hostNetwork': True,
-                }
-            }
-        })
-        self.model.unit.status = ActiveStatus()
+        if unready:
+            self.unit.status = WaitingStatus(", ".join(unready))
+        else:
+            self.unit.set_workload_version(self.collector.short_version)
+            self.unit.status = ActiveStatus("Ready")
+            self.app.status = ActiveStatus(self.collector.long_version)
 
 
 if __name__ == "__main__":
-    main(SRIOVCNICharm)
+    main(SRIOVCNICharm)  # pragma: no cover

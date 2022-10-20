@@ -3,21 +3,7 @@ summary: SR-IOV CNI
 docs: https://discourse.charmhub.io/t/sriov-cni-index-docs/6321
 maintainers:
   - George Kraft <george.kraft@canonical.com>
+  - Mateo Florido <mateo.florido@canonical.com>
 description: |
   SR-IOV CNI plugin works with SR-IOV device plugin for VF allocation for a
   container.
-tags:
-  - misc
-series:
-  - kubernetes
-provides: {}
-requires: {}
-peers: {}
-resources:
-  sriov-cni-image:
-    type: oci-image
-    description: 'SR-IOV CNI image'
-deployment:
-  type: daemon
-  service: omit
-min-juju-version: 2.8.0

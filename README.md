@@ -21,16 +21,6 @@ This charm can be built locally using [charmcraft][]
 charmcraft pack
 ```
 
-### Building the resources
-
-In order to test the sriov-cni charm, you must first build the container image
-(note: this requires Docker):
-
-```
-cd image
-./build
-```
-
 ### Testing
 
 Deploy Charmed Kubernetes with storage support.
@@ -51,7 +41,7 @@ juju add-model my-k8s-model my-k8s-cloud
 Deploy the SR-IOV Network Device Plugin:
 
 ```
-juju deploy ./sriov-cni.charm --resource sriov-cni-image=sriov-cni
+juju deploy ./sriov-cni.charm
 ```
 
 ## Contributing
