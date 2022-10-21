@@ -12,12 +12,14 @@ log = logging.getLogger(__name__)
 
 
 class SetCNIPath(Patch):
-    """Change CNI path to install SRIO-CNI plugin to"""
+    """Change CNI path to install SRIOV-CNI plugin to"""
 
     def __call__(self, obj) -> None:
-        obj.spec.template.spec.volumes[0].hostPath.path = self.manifests.config[
-            "cni-bin-dir"
-        ]
+        volumes = obj.spec.template.spec.volumes
+        if volumes:
+            for v in volumes:
+                if v.name == "cnibin":
+                    v.hostPath.path = self.manifests.config["cni-bin-dir"]
 
 
 class SRIOVCNIManifests(Manifests):
