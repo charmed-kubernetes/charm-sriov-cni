@@ -35,14 +35,14 @@ class SRIOVCNICharm(CharmBase):
         if not self.unit.is_leader():
             self.unit.status = ActiveStatus("Ready")
             return
-        self.unit.status = MaintenanceStatus("Applying SRIOV-CNI resources")
+        self.unit.status = MaintenanceStatus("Applying SR-IOV CNI resources")
         log.info("Applying SRIOV-CNI manifests.")
         self.manifests.apply_manifests()
         self.stored.deployed = True
         self._update_status(event)
 
     def _on_config_changed(self, event):
-        self.unit.status = MaintenanceStatus()
+        self.unit.status = MaintenanceStatus("Applying SR-IOV CNI resources")
         self.manifests.apply_manifests()
         self._update_status(event)
 
