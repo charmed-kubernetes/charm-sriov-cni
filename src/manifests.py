@@ -31,4 +31,12 @@ class SRIOVCNIManifests(Manifests):
 
     @property
     def config(self) -> Dict:
-        return dict(**self.charm_config)
+        """Returns config mapped from charm config."""
+        config = dict(**self.charm_config)
+
+        for key, value in dict(**config).items():
+            if value == "" or value is None:
+                del config[key]
+
+        config["release"] = config.pop("release", None)
+        return config
