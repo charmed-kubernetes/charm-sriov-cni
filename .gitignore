@@ -1,2 +1,6 @@
-build/
+.tox/
+__pycache__/
+*.pyc
 *.charm
+build/
+.coverage

@@ -4,3 +4,13 @@ options:
     default: '/opt/cni/bin'
     description: |
       Path to install SR-IOV CNI plugin to.
+  image-registry:
+    default: rocks.canonical.com:443/cdk
+    type: string
+    description: |
+      Source registry of SRIOV CNI images.
+      By setting to a value, each image listed in the releases manifest
+      has its image-registry replaced.
+  release:
+    description: Version of SRIOV CNI to deploy
+    type: string
