@@ -9,7 +9,7 @@ import logging
 from ops.charm import CharmBase
 from ops.framework import StoredState
 from ops.main import main
-from ops.manifests import Collector
+from ops.manifests import Collector, ManifestClientError
 from ops.model import ActiveStatus, MaintenanceStatus, WaitingStatus
 
 from manifests import SRIOVCNIManifests
@@ -29,7 +29,36 @@ class SRIOVCNICharm(CharmBase):
         self.framework.observe(self.on.install, self._install_or_upgrade)
         self.framework.observe(self.on.upgrade_charm, self._install_or_upgrade)
         self.framework.observe(self.on.config_changed, self._on_config_changed)
+
+        self.framework.observe(self.on.list_versions_action, self._list_versions)
+        self.framework.observe(self.on.list_resources_action, self._list_resources)
+        self.framework.observe(self.on.scrub_resources_action, self._scrub_resources)
+        self.framework.observe(self.on.sync_resources_action, self._sync_resources)
+        self.framework.observe(self.on.update_status, self._update_status)
+
         self.stored.set_default(deployed=False)
+
+    def _list_versions(self, event):
+        self.collector.list_versions(event)
+
+    def _list_resources(self, event):
+        manifests = ""
+        resources = event.params.get("resources", "")
+        return self.collector.list_resources(event, manifests, resources)
+
+    def _scrub_resources(self, event):
+        manifests = ""
+        resources = event.params.get("resources", "")
+        return self.collector.scrub_resources(event, manifests, resources)
+
+    def _sync_resources(self, event):
+        manifests = ""
+        resources = event.params.get("resources", "")
+        try:
+            self.collector.apply_missing_resources(event, manifests, resources)
+        except ManifestClientError:
+            msg = "Failed to apply missing resources. API Server unavailable."
+            event.set_results({"result": msg})
 
     def _install_or_upgrade(self, event):
         if not self.unit.is_leader():
@@ -37,13 +66,23 @@ class SRIOVCNICharm(CharmBase):
             return
         self.unit.status = MaintenanceStatus("Applying SR-IOV CNI resources")
         log.info("Applying SRIOV-CNI manifests.")
-        self.manifests.apply_manifests()
+        try:
+            self.manifests.apply_manifests()
+        except ManifestClientError:
+            self.unit.status = WaitingStatus("Waiting for kube-apiserver")
+            event.defer()
+            return
         self.stored.deployed = True
         self._update_status(event)
 
     def _on_config_changed(self, event):
         self.unit.status = MaintenanceStatus("Applying SR-IOV CNI resources")
-        self.manifests.apply_manifests()
+        try:
+            self.manifests.apply_manifests()
+        except ManifestClientError:
+            self.unit.status = WaitingStatus("Waiting for kube-apiserver")
+            event.defer()
+            return
         self._update_status(event)
 
     def _update_status(self, _):
