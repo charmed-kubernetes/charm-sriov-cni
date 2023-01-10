@@ -1,2 +1,2 @@
 ops
-git+https://github.com/canonical/ops-lib-manifest.git@f411bf1b381d49f950de5a778ab7af7811fa646c
+git+https://github.com/canonical/ops-lib-manifest.git@0929a0d1483b927783c75cdc5ebe6694b7f26d88
