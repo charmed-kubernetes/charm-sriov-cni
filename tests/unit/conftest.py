@@ -21,6 +21,7 @@ def lk_client():
 def harness():
     harness = Harness(SRIOVCNICharm)
     try:
+        harness.set_leader(True)
         yield harness
     finally:
         harness.cleanup()
