@@ -1,2 +1,3 @@
 ops
 git+https://github.com/canonical/ops-lib-manifest.git@a02d83af8febeed39b7324b0247368cfc7105d73
+lightkube==0.17.0
