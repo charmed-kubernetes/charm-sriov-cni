@@ -5,7 +5,7 @@ options:
     description: |
       Path to install SR-IOV CNI plugin to.
   image-registry:
-    default: rocks.canonical.com:443/cdk
+    default: ghcr.io/canonical/cdk
     type: string
     description: |
       Source registry of SRIOV CNI images.
