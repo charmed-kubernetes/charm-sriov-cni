@@ -4,6 +4,7 @@
 # Learn more at: https://juju.is/docs/sdk
 
 import unittest.mock as mock
+from pathlib import Path
 from typing import List, Tuple
 
 import pytest
@@ -71,7 +72,42 @@ def _mock_volume_factory(args: List[Tuple[str, str]]):
     volumes = []
     for a in args:
         volume = mock.MagicMock()
-        (volume.name, volume.hostPath.path) = a
+        volume.name, volume.hostPath.path = a
         volumes.append(volume)
 
     return volumes
+
+
+@pytest.mark.parametrize(
+    "release",
+    [
+        None,
+        *sorted(path.name for path in Path("upstream/sriov-cni/manifests").iterdir()),
+    ],
+)
+def test_bundled_installer_preserves_upgrade_contract(harness, release):
+    harness.disable_hooks()
+    config = {"cni-bin-dir": "/custom/cni/bin"}
+    if release:
+        config["release"] = release
+    harness.update_config(config)
+    harness.begin()
+    (resource,) = harness.charm.manifests.resources
+    daemonset = resource.resource
+    assert resource.name == "kube-sriov-cni-ds-amd64"
+    assert resource.namespace == "kube-system"
+    assert daemonset.spec.selector.matchLabels == {"name": "sriov-cni"}
+    spec = daemonset.spec.template.spec
+    assert spec.nodeSelector["kubernetes.io/arch"] == "amd64"
+    (container,) = spec.containers
+    assert container.image.startswith(
+        "ghcr.io/canonical/cdk/k8snetworkplumbingwg/sriov-cni:v"
+    )
+    assert container.imagePullPolicy == "IfNotPresent"
+    (volume,) = spec.volumes
+    (mount,) = container.volumeMounts
+    assert volume.name == mount.name == "cnibin"
+    assert volume.hostPath.path == "/custom/cni/bin"
+    assert mount.mountPath == "/host/opt/cni/bin"
+    toleration_keys = [toleration.key for toleration in spec.tolerations]
+    assert toleration_keys.count("node-role.kubernetes.io/control-plane") == 1

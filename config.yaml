@@ -12,5 +12,6 @@ options:
       By setting to a value, each image listed in the releases manifest
       has its image-registry replaced.
   release:
+    default: v2.10.0
     description: Version of SRIOV CNI to deploy
     type: string
