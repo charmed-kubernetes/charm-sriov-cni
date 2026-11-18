@@ -21,7 +21,9 @@ def test_reject_mutable_or_nonstable_versions(version):
     [("v2.7.0", "images/k8s-v1.16"), ("v2.8.1", "images")],
 )
 def test_manifest_source_layout(version, directory):
-    assert source_url(version).endswith(f"/{version}/{directory}/sriov-cni-daemonset.yaml")
+    assert source_url(version).endswith(
+        f"/{version}/{directory}/sriov-cni-daemonset.yaml"
+    )
 
 
 def test_render_preserves_installer_contract():

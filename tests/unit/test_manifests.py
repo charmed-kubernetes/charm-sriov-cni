@@ -72,7 +72,7 @@ def _mock_volume_factory(args: List[Tuple[str, str]]):
     volumes = []
     for a in args:
         volume = mock.MagicMock()
-        (volume.name, volume.hostPath.path) = a
+        volume.name, volume.hostPath.path = a
         volumes.append(volume)
 
     return volumes
@@ -80,8 +80,10 @@ def _mock_volume_factory(args: List[Tuple[str, str]]):
 
 @pytest.mark.parametrize(
     "release",
-    [None]
-    + sorted(path.name for path in Path("upstream/sriov-cni/manifests").iterdir()),
+    [
+        None,
+        *sorted(path.name for path in Path("upstream/sriov-cni/manifests").iterdir()),
+    ],
 )
 def test_bundled_installer_preserves_upgrade_contract(harness, release):
     harness.disable_hooks()
